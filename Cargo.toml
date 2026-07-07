@@ -1,0 +1,8 @@
+[package]
+name = "multiplayer-game-test"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+mlua = { version = "0.12.0", features = ["luau", "vendored"] }
+raylib = "6.0.0"
