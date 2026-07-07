@@ -8,14 +8,8 @@ mod api;
 mod core;
 mod macros;
 
-// Note to self:
-// I need to cleanup how draw_commands are handled and how we create/register functions to the api
-// I think I should make a module that allows me to easily register functions to the api explicitly
-// I also NEED to cleanup the expects omggg, i'll just use mlua's error handling?? idk
-// And have another module that can handle the draw_commands bs for me, it's very awkward and messy
-// I'll also make some sort of utility module that converts strings to raylib types, so "to_rl_color" "to_rl_bind", idk
-// I'll either go roblox style with scripts or stick to a more sophisticated and simpler "on_update" "on_draw" and "on_init"
-// After that I'll make some submodules that register functions and get to work on the actual game in luau (hype)
+// TODO: create an "Application" struct
+// TODO: automatically load luau files
 
 fn main() -> LuaResult<()> {
     let api = API::new();
