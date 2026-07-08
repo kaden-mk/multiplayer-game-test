@@ -1,0 +1,69 @@
+use mlua::prelude::*;
+use raylib::prelude::*;
+use std::{cell::RefCell, fs, path::Path, rc::Rc};
+
+use crate::api::API;
+
+pub struct Application {
+    api: Rc<API>,
+    rl: Rc<RefCell<RaylibHandle>>,
+    rl_thread: Rc<RaylibThread>,
+    lua: Rc<Lua>,
+}
+
+impl Application {
+    pub fn new() -> Self {
+        let (rt, rl_thread) = raylib::init()
+            .size(640, 480)
+            .title("Multiplayer Shooter")
+            .build();
+
+        let rl_thread = Rc::new(rl_thread);
+
+        let lua = Rc::new(Lua::new());
+        let api = Rc::new(API::new());
+        api.init(&lua);
+
+        Self {
+            api,
+            rl: Rc::new(RefCell::new(rt)),
+            rl_thread,
+            lua,
+        }
+    }
+
+    pub fn load_scripts(&self, dir: &str) -> LuaResult<()> {
+        let path = Path::new(dir);
+
+        if path.is_dir() {
+            for entry in
+                fs::read_dir(path).map_err(|e| LuaError::ExternalError(std::sync::Arc::new(e)))?
+            {
+                let entry = entry.map_err(|e| LuaError::ExternalError(std::sync::Arc::new(e)))?;
+                let path = entry.path();
+
+                if path.extension().and_then(|s| s.to_str()) == Some("luau") {
+                    println!("Loading script: {:?}", path);
+
+                    let content = fs::read_to_string(&path)
+                        .map_err(|e| LuaError::ExternalError(std::sync::Arc::new(e)))?;
+
+                    self.api.register_script(&self.lua, content.as_str())?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn run(&self) -> LuaResult<()> {
+        let mut rl = self.rl.borrow_mut();
+
+        while !rl.window_should_close() {
+            let mut d = rl.begin_drawing(&self.rl_thread);
+            self.api.update(&mut d)?;
+        }
+
+        Ok(())
+    }
+}

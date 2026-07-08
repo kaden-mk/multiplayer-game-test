@@ -1,4 +1,5 @@
 use crate::Rc;
+use crate::api::assets::AssetModule;
 use crate::api::draw::DrawModule;
 use crate::api::game::GameModule;
 use crate::api::input::InputModule;
@@ -7,6 +8,7 @@ use std::cell::RefCell;
 use mlua::prelude::*;
 use raylib::prelude::*;
 
+pub mod assets;
 pub mod draw;
 pub mod game;
 pub mod input;
@@ -15,6 +17,7 @@ pub struct API {
     draw: Rc<DrawModule>,
     input: Rc<InputModule>,
     game: Rc<RefCell<GameModule>>,
+    assets: Rc<AssetModule>,
 }
 
 impl API {
@@ -23,6 +26,7 @@ impl API {
             draw: Rc::new(DrawModule::new()),
             input: Rc::new(InputModule::new()),
             game: Rc::new(RefCell::new(GameModule::new())),
+            assets: Rc::new(AssetModule::new()),
         }
     }
 

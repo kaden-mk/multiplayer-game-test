@@ -1,5 +1,5 @@
 use mlua::prelude::*;
-use raylib::{ffi::RaylibPalette, prelude::*};
+use raylib::prelude::*;
 
 pub struct GameModule {
     scripts: Vec<LuaTable>,
