@@ -9,7 +9,7 @@ mod core;
 mod macros;
 
 fn main() -> LuaResult<()> {
-    let app = Application::new();
+    let app = Application::new()?;
     app.load_scripts("scripts")?;
     app.run()?;
 

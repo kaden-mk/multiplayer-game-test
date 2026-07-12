@@ -6,9 +6,8 @@ macro_rules! bind_func {
         })?;
         $table.set($luau_name, func)?;
     }};
-
     ($lua:expr, $table:expr, $luau_name:expr, instance $instance:expr, $method:ident, ($($arg:ident : $ty:ty),*)) => {{
-        let ctx = ::std::rc::Rc::clone(&$instance);
+        let ctx = $instance.clone();
         let func = $lua.create_function(move |_, ($($arg,)*): ($($ty,)*)| {
             Ok(ctx.$method($($arg),*))
         })?;

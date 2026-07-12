@@ -21,16 +21,18 @@ pub struct API {
 }
 
 impl API {
-    pub fn new() -> Self {
+    pub fn new(rl: Rc<RefCell<RaylibHandle>>, thread: Rc<RaylibThread>) -> Self {
+        let assets = Rc::new(AssetModule::new(rl.clone(), thread.clone()));
         Self {
-            draw: Rc::new(DrawModule::new()),
+            draw: Rc::new(DrawModule::new(assets.clone())),
             input: Rc::new(InputModule::new()),
             game: Rc::new(RefCell::new(GameModule::new())),
-            assets: Rc::new(AssetModule::new()),
+            assets,
         }
     }
 
     pub fn init(&self, lua: &Lua) -> LuaResult<()> {
+        self.assets.register(lua)?;
         self.draw.register(lua)?;
         self.input.register(lua)?;
 

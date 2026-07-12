@@ -12,24 +12,25 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new() -> Self {
-        let (rt, rl_thread) = raylib::init()
+    pub fn new() -> LuaResult<Self> {
+        let (rl, rl_thread) = raylib::init()
             .size(640, 480)
             .title("Multiplayer Shooter")
             .build();
 
+        let rl = Rc::new(RefCell::new(rl));
         let rl_thread = Rc::new(rl_thread);
 
         let lua = Rc::new(Lua::new());
-        let api = Rc::new(API::new());
-        api.init(&lua);
+        let api = Rc::new(API::new(rl.clone(), rl_thread.clone()));
+        api.init(&lua)?;
 
-        Self {
+        Ok(Self {
             api,
-            rl: Rc::new(RefCell::new(rt)),
+            rl,
             rl_thread,
             lua,
-        }
+        })
     }
 
     pub fn load_scripts(&self, dir: &str) -> LuaResult<()> {
