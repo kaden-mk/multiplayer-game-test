@@ -25,7 +25,7 @@ impl API {
         let assets = Rc::new(AssetModule::new(rl.clone(), thread.clone()));
         Self {
             draw: Rc::new(DrawModule::new(assets.clone())),
-            input: Rc::new(InputModule::new()),
+            input: Rc::new(InputModule::new(rl.clone())),
             game: Rc::new(RefCell::new(GameModule::new())),
             assets,
         }
@@ -43,10 +43,14 @@ impl API {
         self.game.borrow_mut().register_script(lua, content)
     }
 
-    pub fn update(&self, d: &mut RaylibDrawHandle) -> LuaResult<()> {
-        self.game.borrow().update(d)?;
-        self.draw.execute_commands(d);
+    pub fn update(&self, dt: f32) -> LuaResult<()> {
+        self.game.borrow().update(dt)?;
 
         Ok(())
+    }
+
+    pub fn draw(&self, d: &mut RaylibDrawHandle) {
+        d.clear_background(Color::BLACK);
+        self.draw.execute_commands(d);
     }
 }

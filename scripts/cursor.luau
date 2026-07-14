@@ -1,11 +1,12 @@
 const Test = {}
 
+input.set_cursor_visible(false)
+
 const texture = assets.load_texture("assets/cursor.png")
 
 function Test.on_update(dt: number)
-    if input.is_key_down("A") then
-        draw.texture(texture, 12, 12, "WHITE")
-    end
+    const pos = input.get_mouse_position()
+    draw.texture(texture, pos.x, pos.y, "WHITE")
 end
 
 return Test

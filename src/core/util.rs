@@ -12,10 +12,9 @@ pub fn to_color(color: &str) -> Color {
     }
 }
 
-pub fn to_keyboard_key_i32(key: &str) -> i32 {
+pub fn to_keyboard_key(key: &str) -> KeyboardKey {
     match key {
-        "A" => KeyboardKey::KEY_A as i32,
-
-        _ => 0,
+        "A" => KeyboardKey::KEY_A,
+        _ => KeyboardKey::KEY_ESCAPE,
     }
 }

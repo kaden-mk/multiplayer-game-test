@@ -18,13 +18,14 @@ impl GameModule {
         Ok(())
     }
 
-    pub fn update(&self, d: &mut RaylibDrawHandle) -> LuaResult<()> {
-        d.clear_background(Color::BLACK);
+    pub fn update(&self, dt: f32) -> LuaResult<()> {
+        //d.clear_background(Color::BLACK);
         for script in &self.scripts {
             if let Ok(func) = script.get::<LuaFunction>("on_update") {
-                func.call::<()>(d.get_frame_time())?;
+                func.call::<()>(dt)?;
             }
         }
+
         Ok(())
     }
 }

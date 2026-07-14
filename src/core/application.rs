@@ -14,9 +14,11 @@ pub struct Application {
 impl Application {
     pub fn new() -> LuaResult<Self> {
         let (rl, rl_thread) = raylib::init()
-            .size(640, 480)
+            .size(1920, 1080)
             .title("Multiplayer Shooter")
             .build();
+
+        rl.toggle_borderless_windowed();
 
         let rl = Rc::new(RefCell::new(rl));
         let rl_thread = Rc::new(rl_thread);
@@ -58,11 +60,19 @@ impl Application {
     }
 
     pub fn run(&self) -> LuaResult<()> {
-        let mut rl = self.rl.borrow_mut();
+        loop {
+            let should_close = { self.rl.borrow().window_should_close() };
 
-        while !rl.window_should_close() {
+            if should_close {
+                break;
+            }
+
+            let dt = self.rl.borrow().get_frame_time();
+            self.api.update(dt)?;
+
+            let mut rl = self.rl.borrow_mut();
             let mut d = rl.begin_drawing(&self.rl_thread);
-            self.api.update(&mut d)?;
+            self.api.draw(&mut d);
         }
 
         Ok(())
