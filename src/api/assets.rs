@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, fs, rc::Rc};
 
 use mlua::prelude::*;
 use raylib::prelude::*;
@@ -44,7 +44,7 @@ impl AssetModule {
     pub fn register(self: &Rc<Self>, lua: &Lua) -> LuaResult<()> {
         let assets_table = lua.create_table()?;
 
-        bind_func!(lua, assets_table, "load_texture", instance self, load_texture, (filename: String));
+        bind_func!(lua, assets_table, "load_texture", self, load_texture, (filename: String));
 
         lua.globals().set("assets", assets_table)?;
 
@@ -55,6 +55,8 @@ impl AssetModule {
 impl AssetModule {
     fn load_texture(&self, filename: String) -> LuaResult<String> {
         let mut textures = self.textures.borrow_mut();
+
+        let filename = fs::canonicalize(&filename)?.to_string_lossy().to_string();
 
         if !textures.items.contains_key(&filename) {
             let result = self.rl.borrow_mut().load_texture(&self.thread, &filename);

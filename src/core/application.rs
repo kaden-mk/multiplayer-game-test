@@ -1,6 +1,11 @@
 use mlua::prelude::*;
 use raylib::prelude::*;
-use std::{cell::RefCell, fs, path::Path, rc::Rc};
+use std::{
+    cell::RefCell,
+    fs,
+    path::{Path, PathBuf},
+    rc::Rc,
+};
 
 use crate::api::API;
 
@@ -9,6 +14,7 @@ pub struct Application {
     rl: Rc<RefCell<RaylibHandle>>,
     rl_thread: Rc<RaylibThread>,
     lua: Rc<Lua>,
+    scripts: Vec<PathBuf>,
 }
 
 impl Application {
@@ -32,10 +38,11 @@ impl Application {
             rl,
             rl_thread,
             lua,
+            scripts: Vec::new(),
         })
     }
 
-    pub fn load_scripts(&self, dir: &str) -> LuaResult<()> {
+    pub fn load_scripts(&mut self, dir: &str) -> LuaResult<()> {
         let path = Path::new(dir);
 
         if path.is_dir() {
@@ -46,14 +53,25 @@ impl Application {
                 let path = entry.path();
 
                 if path.extension().and_then(|s| s.to_str()) == Some("luau") {
-                    println!("Loading script: {:?}", path);
-
-                    let content = fs::read_to_string(&path)
-                        .map_err(|e| LuaError::ExternalError(std::sync::Arc::new(e)))?;
-
-                    self.api.register_script(&self.lua, content.as_str())?;
+                    self.scripts.push(path);
                 }
             }
+        }
+
+        self.scripts.sort();
+
+        for path in &self.scripts {
+            println!("Loading script: {:?}", path);
+            let content = fs::read_to_string(&path)
+                .map_err(|e| LuaError::ExternalError(std::sync::Arc::new(e)))?;
+
+            let name = format!(
+                "@{}",
+                path.with_extension("").to_string_lossy().replace('\\', "/")
+            );
+
+            self.api
+                .register_script(&self.lua, content.as_str(), &name)?;
         }
 
         Ok(())

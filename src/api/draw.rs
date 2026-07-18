@@ -139,10 +139,10 @@ impl DrawModule {
     pub fn register(self: &Rc<Self>, lua: &Lua) -> LuaResult<()> {
         let draw_table = lua.create_table()?;
 
-        bind_func!(lua, draw_table, "clear", instance self, clear_background, (color: String));
-        bind_func!(lua, draw_table, "text", instance self, draw_text, (text: String, x: i32, y: i32, font_size: i32, color: String));
-        bind_func!(lua, draw_table, "texture", instance self, draw_texture, (texture: String, x: i32, y: i32, tint: String));
-        bind_func!(lua, draw_table, "texture_ex", instance self, draw_texture_ex, (texture: String, pos: LuaVector, rot: f32, scale: f32, tint: String));
+        bind_func!(lua, draw_table, "clear", self, clear_background, (color: String));
+        bind_func!(lua, draw_table, "text", self, draw_text, (text: String, x: i32, y: i32, font_size: i32, color: String));
+        bind_func!(lua, draw_table, "texture", self, draw_texture, (texture: String, x: i32, y: i32, tint: String));
+        bind_func!(lua, draw_table, "texture_ex", self, draw_texture_ex, (texture: String, pos: LuaVector, rot: f32, scale: f32, tint: String));
 
         lua.globals().set("draw", draw_table)?;
         Ok(())

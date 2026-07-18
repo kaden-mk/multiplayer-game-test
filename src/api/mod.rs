@@ -36,11 +36,14 @@ impl API {
         self.draw.register(lua)?;
         self.input.register(lua)?;
 
+        let require = lua.create_require_function(LuaFsRequirer::default())?;
+        lua.globals().set("require", require)?;
+
         Ok(())
     }
 
-    pub fn register_script(&self, lua: &Lua, content: &str) -> LuaResult<()> {
-        self.game.borrow_mut().register_script(lua, content)
+    pub fn register_script(&self, lua: &Lua, content: &str, name: &str) -> LuaResult<()> {
+        self.game.borrow_mut().register_script(lua, content, name)
     }
 
     pub fn update(&self, dt: f32) -> LuaResult<()> {

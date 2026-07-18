@@ -42,9 +42,16 @@ impl InputModule {
     pub fn register(self: &Rc<Self>, lua: &Lua) -> LuaResult<()> {
         let input_table = lua.create_table()?;
 
-        bind_func!(lua, input_table, "is_key_down", instance self, is_key_down, (key: String));
-        bind_func!(lua, input_table, "set_cursor_visible", instance self, set_cursor_visible, (visible: bool));
-        bind_func!(lua, input_table, "get_mouse_position", instance self, get_mouse_position, ());
+        bind_func!(lua, input_table, "is_key_down", self, is_key_down, (key: String));
+        bind_func!(lua, input_table, "set_cursor_visible", self, set_cursor_visible, (visible: bool));
+        bind_func!(
+            lua,
+            input_table,
+            "get_mouse_position",
+            self,
+            get_mouse_position,
+            ()
+        );
 
         lua.globals().set("input", input_table)?;
         Ok(())

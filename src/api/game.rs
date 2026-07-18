@@ -11,8 +11,8 @@ impl GameModule {
         }
     }
 
-    pub fn register_script(&mut self, lua: &Lua, script: &str) -> LuaResult<()> {
-        let table: LuaTable = lua.load(script).eval()?;
+    pub fn register_script(&mut self, lua: &Lua, script: &str, name: &str) -> LuaResult<()> {
+        let table: LuaTable = lua.load(script).set_name(name).eval()?;
         self.scripts.push(table);
         Ok(())
     }
