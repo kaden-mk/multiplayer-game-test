@@ -1,20 +1,26 @@
+use mlua::prelude::*;
 use raylib::ffi::{Color, KeyboardKey};
 
-pub fn to_color(color: &str) -> Color {
+pub fn to_color(color: &str) -> Result<Color, LuaError> {
     match color {
-        "WHITE" => Color::WHITE,
-        "BLACK" => Color::BLACK,
-        "RED" => Color::RED,
-        "BLUE" => Color::BLUE,
-        "GREEN" => Color::GREEN,
+        "WHITE" => Ok(Color::WHITE),
+        "BLACK" => Ok(Color::BLACK),
+        "RED" => Ok(Color::RED),
+        "BLUE" => Ok(Color::BLUE),
+        "GREEN" => Ok(Color::GREEN),
 
-        _ => Color::MAGENTA,
+        _ => Err(LuaError::RuntimeError(String::from(
+            "Could not find color!",
+        ))),
     }
 }
 
-pub fn to_keyboard_key(key: &str) -> KeyboardKey {
+pub fn to_keyboard_key(key: &str) -> Result<KeyboardKey, LuaError> {
     match key {
-        "A" => KeyboardKey::KEY_A,
-        _ => KeyboardKey::KEY_ESCAPE,
+        "A" => Ok(KeyboardKey::KEY_A),
+
+        _ => Err(LuaError::RuntimeError(String::from(
+            "Could not find keyboard key!",
+        ))),
     }
 }

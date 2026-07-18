@@ -15,7 +15,7 @@ impl InputModule {
     }
 
     fn is_key_down(&self, key: String) -> LuaResult<bool> {
-        let key_code = to_keyboard_key(&key.to_uppercase().as_str());
+        let key_code = to_keyboard_key(&key.to_uppercase().as_str())?;
         Ok(self.rl.borrow_mut().is_key_down(key_code))
     }
 

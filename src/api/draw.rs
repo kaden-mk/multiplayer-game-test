@@ -19,10 +19,19 @@ pub struct TextureData {
     tint: Color,
 }
 
+pub struct TextureDataEx {
+    texture: Rc<Texture2D>,
+    pos: Vector2,
+    rot: f32,
+    scale: f32,
+    tint: Color,
+}
+
 pub enum DrawCommand {
     ClearBackground(Color),
     DrawText(TextData),
     DrawTexture(TextureData),
+    DrawTextureEx(TextureDataEx),
 }
 
 pub struct DrawModule {
@@ -38,15 +47,24 @@ impl DrawModule {
         }
     }
 
-    fn clear_background(&self, color: String) {
-        let color = to_color(&color.to_uppercase().as_str());
+    fn clear_background(&self, color: String) -> LuaResult<()> {
+        let color = to_color(&color.to_uppercase().as_str())?;
         self.commands
             .borrow_mut()
             .push(DrawCommand::ClearBackground(color));
+
+        Ok(())
     }
 
-    fn draw_text(&self, text: String, x: i32, y: i32, font_size: i32, color: String) {
-        let color = to_color(&color.to_uppercase().as_str());
+    fn draw_text(
+        &self,
+        text: String,
+        x: i32,
+        y: i32,
+        font_size: i32,
+        color: String,
+    ) -> LuaResult<()> {
+        let color = to_color(&color.to_uppercase().as_str())?;
         let text_data = TextData {
             text,
             x,
@@ -58,12 +76,14 @@ impl DrawModule {
         self.commands
             .borrow_mut()
             .push(DrawCommand::DrawText(text_data));
+
+        Ok(())
     }
 
-    fn draw_texture(&self, texture: String, x: i32, y: i32, tint: String) {
+    fn draw_texture(&self, texture: String, x: i32, y: i32, tint: String) -> LuaResult<()> {
         match self.assets.get_texture(texture.as_str()) {
             Some(texture) => {
-                let tint = to_color(&tint.to_uppercase().as_str());
+                let tint = to_color(&tint.to_uppercase().as_str())?;
                 let texture_data = TextureData {
                     texture,
                     x,
@@ -79,6 +99,39 @@ impl DrawModule {
                 eprintln!("texture '{}' doesn't exist", texture);
             }
         }
+
+        Ok(())
+    }
+
+    fn draw_texture_ex(
+        &self,
+        texture: String,
+        pos: LuaVector,
+        rot: f32,
+        scale: f32,
+        tint: String,
+    ) -> LuaResult<()> {
+        match self.assets.get_texture(texture.as_str()) {
+            Some(texture) => {
+                let tint = to_color(&tint.to_uppercase().as_str())?;
+                let texture_data = TextureDataEx {
+                    texture,
+                    pos: Vector2::new(pos.x(), pos.y()),
+                    rot,
+                    scale,
+                    tint,
+                };
+
+                self.commands
+                    .borrow_mut()
+                    .push(DrawCommand::DrawTextureEx(texture_data));
+            }
+            None => {
+                eprintln!("texture '{}' doesn't exist", texture);
+            }
+        }
+
+        Ok(())
     }
 }
 
@@ -89,6 +142,7 @@ impl DrawModule {
         bind_func!(lua, draw_table, "clear", instance self, clear_background, (color: String));
         bind_func!(lua, draw_table, "text", instance self, draw_text, (text: String, x: i32, y: i32, font_size: i32, color: String));
         bind_func!(lua, draw_table, "texture", instance self, draw_texture, (texture: String, x: i32, y: i32, tint: String));
+        bind_func!(lua, draw_table, "texture_ex", instance self, draw_texture_ex, (texture: String, pos: LuaVector, rot: f32, scale: f32, tint: String));
 
         lua.globals().set("draw", draw_table)?;
         Ok(())
@@ -109,6 +163,16 @@ impl DrawModule {
 
                 DrawCommand::DrawTexture(texture) => {
                     d.draw_texture(texture.texture.as_ref(), texture.x, texture.y, texture.tint);
+                }
+
+                DrawCommand::DrawTextureEx(texture) => {
+                    d.draw_texture_ex(
+                        texture.texture.as_ref(),
+                        texture.pos,
+                        texture.rot,
+                        texture.scale,
+                        texture.tint,
+                    );
                 }
             }
         }
