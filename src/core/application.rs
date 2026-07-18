@@ -14,11 +14,11 @@ pub struct Application {
 impl Application {
     pub fn new() -> LuaResult<Self> {
         let (rl, rl_thread) = raylib::init()
-            .size(1920, 1080)
+            .size(1280, 720)
             .title("Multiplayer Shooter")
             .build();
 
-        rl.toggle_borderless_windowed();
+        //rl.toggle_borderless_windowed();
 
         let rl = Rc::new(RefCell::new(rl));
         let rl_thread = Rc::new(rl_thread);

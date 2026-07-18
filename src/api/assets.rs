@@ -53,21 +53,27 @@ impl AssetModule {
 }
 
 impl AssetModule {
-    fn load_texture(&self, filename: String) -> String {
+    fn load_texture(&self, filename: String) -> LuaResult<String> {
         let mut textures = self.textures.borrow_mut();
 
         if !textures.items.contains_key(&filename) {
-            let texture = self
-                .rl
-                .borrow_mut()
-                .load_texture(&self.thread, &filename)
-                .expect("failed to load texture");
+            let result = self.rl.borrow_mut().load_texture(&self.thread, &filename);
+
+            let texture = match result {
+                Ok(tex) => tex,
+                Err(err) => {
+                    return Err(LuaError::RuntimeError(format!(
+                        "Failed to load texture: '{}': {:?}",
+                        filename, err
+                    )));
+                }
+            };
 
             let texture = Rc::new(texture);
 
             textures.items.insert(filename.clone(), texture);
         }
 
-        filename
+        Ok(filename)
     }
 }

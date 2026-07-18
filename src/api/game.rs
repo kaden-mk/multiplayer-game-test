@@ -1,5 +1,4 @@
 use mlua::prelude::*;
-use raylib::prelude::*;
 
 pub struct GameModule {
     scripts: Vec<LuaTable>,
@@ -21,7 +20,14 @@ impl GameModule {
     pub fn update(&self, dt: f32) -> LuaResult<()> {
         for script in &self.scripts {
             if let Ok(func) = script.get::<LuaFunction>("on_update") {
-                func.call::<()>(dt)?;
+                let result = func.call::<()>(dt);
+
+                match result {
+                    Ok(_) => {}
+                    Err(err) => {
+                        eprintln!("Script Error: {}", err)
+                    }
+                }
             }
         }
 

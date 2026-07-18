@@ -19,13 +19,15 @@ impl InputModule {
         Ok(self.rl.borrow_mut().is_key_down(key_code))
     }
 
-    fn set_cursor_visible(&self, visible: bool) {
+    fn set_cursor_visible(&self, visible: bool) -> LuaResult<()> {
         let mut rl = self.rl.borrow_mut();
         if visible {
             rl.show_cursor();
         } else {
             rl.hide_cursor();
         }
+
+        Ok(())
     }
 
     fn get_mouse_position(&self) -> LuaResult<Vector> {
