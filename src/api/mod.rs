@@ -1,9 +1,9 @@
-use crate::Rc;
 use crate::api::assets::AssetModule;
 use crate::api::game::GameModule;
 use crate::api::graphics::GraphicsModule;
 use crate::api::input::InputModule;
 use std::cell::RefCell;
+use std::rc::Rc;
 
 use mlua::prelude::*;
 use raylib::prelude::*;

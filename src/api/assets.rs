@@ -44,7 +44,7 @@ impl AssetModule {
     pub fn register(self: &Rc<Self>, lua: &Lua) -> LuaResult<()> {
         let assets_table = lua.create_table()?;
 
-        bind_func!(lua, assets_table, "load_texture", self, load_texture, (filename: String));
+        bind_func!(lua, assets_table, "load_texture", self, load_texture, (filename: String) -> String);
 
         let engine: LuaTable = lua.globals().get("engine")?;
         engine.set("assets", assets_table)?;

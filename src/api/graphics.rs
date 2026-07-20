@@ -2,7 +2,11 @@ use mlua::prelude::*;
 use raylib::prelude::*;
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{api::assets::AssetModule, bind_func, core::util::to_color};
+use crate::{
+    api::assets::AssetModule,
+    bind_func,
+    core::{types::LuaColor, util::to_color},
+};
 
 pub struct TextData {
     text: String,
@@ -62,15 +66,14 @@ impl GraphicsModule {
         x: i32,
         y: i32,
         font_size: i32,
-        color: String,
+        color: LuaColor,
     ) -> LuaResult<()> {
-        let color = to_color(&color.to_uppercase().as_str())?;
         let text_data = TextData {
             text,
             x,
             y,
             font_size,
-            color,
+            color: color.0,
         };
 
         self.commands
@@ -80,15 +83,14 @@ impl GraphicsModule {
         Ok(())
     }
 
-    fn draw_texture(&self, texture: String, x: i32, y: i32, tint: String) -> LuaResult<()> {
+    fn draw_texture(&self, texture: String, x: i32, y: i32, tint: LuaColor) -> LuaResult<()> {
         match self.assets.get_texture(texture.as_str()) {
             Some(texture) => {
-                let tint = to_color(&tint.to_uppercase().as_str())?;
                 let texture_data = TextureData {
                     texture,
                     x,
                     y,
-                    tint,
+                    tint: tint.0,
                 };
 
                 self.commands
@@ -109,17 +111,16 @@ impl GraphicsModule {
         pos: LuaVector,
         rot: f32,
         scale: f32,
-        tint: String,
+        tint: LuaColor,
     ) -> LuaResult<()> {
         match self.assets.get_texture(texture.as_str()) {
             Some(texture) => {
-                let tint = to_color(&tint.to_uppercase().as_str())?;
                 let texture_data = TextureDataEx {
                     texture,
                     pos: Vector2::new(pos.x(), pos.y()),
                     rot,
                     scale,
-                    tint,
+                    tint: tint.0,
                 };
 
                 self.commands
@@ -139,10 +140,10 @@ impl GraphicsModule {
     pub fn register(self: &Rc<Self>, lua: &Lua) -> LuaResult<()> {
         let graphics_table = lua.create_table()?;
 
-        bind_func!(lua, graphics_table, "clear_background", self, clear_background, (color: String));
-        bind_func!(lua, graphics_table, "draw_text", self, draw_text, (text: String, x: i32, y: i32, font_size: i32, color: String));
-        bind_func!(lua, graphics_table, "draw_texture", self, draw_texture, (texture: String, x: i32, y: i32, tint: String));
-        bind_func!(lua, graphics_table, "draw_texture_ex", self, draw_texture_ex, (texture: String, pos: LuaVector, rot: f32, scale: f32, tint: String));
+        bind_func!(lua, graphics_table, "clear_background", self, clear_background, (color: String) -> ());
+        bind_func!(lua, graphics_table, "draw_text", self, draw_text, (text: String, x: i32, y: i32, font_size: i32, color: LuaColor) -> ());
+        bind_func!(lua, graphics_table, "draw_texture", self, draw_texture, (texture: String, x: i32, y: i32, tint: LuaColor) -> ());
+        bind_func!(lua, graphics_table, "draw_texture_ex", self, draw_texture_ex, (texture: String, pos: LuaVector, rot: f32, scale: f32, tint: LuaColor) -> ());
 
         let engine: LuaTable = lua.globals().get("engine")?;
         engine.set("graphics", graphics_table)?;

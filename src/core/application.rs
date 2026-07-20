@@ -7,7 +7,10 @@ use std::{
     rc::Rc,
 };
 
-use crate::api::API;
+use crate::{
+    api::API,
+    core::types::{LuaColor, LuaRect},
+};
 
 pub struct Application {
     api: Rc<API>,
@@ -32,6 +35,9 @@ impl Application {
         let lua = Rc::new(Lua::new());
         let api = Rc::new(API::new(rl.clone(), rl_thread.clone()));
         api.init(&lua)?;
+
+        LuaColor::create(&lua)?;
+        LuaRect::create(&lua)?;
 
         Ok(Self {
             api,

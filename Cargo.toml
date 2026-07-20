@@ -4,5 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+inventory = "0.3.24"
 mlua = { version = "0.12.0", features = ["luau", "vendored"] }
+paste = "1.0.15"
 raylib = "6.0.0"
