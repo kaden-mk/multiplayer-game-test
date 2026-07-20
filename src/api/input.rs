@@ -53,7 +53,9 @@ impl InputModule {
             ()
         );
 
-        lua.globals().set("input", input_table)?;
+        let engine: LuaTable = lua.globals().get("engine")?;
+        engine.set("input", input_table)?;
+
         Ok(())
     }
 }

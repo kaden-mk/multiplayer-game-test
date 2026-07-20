@@ -1,7 +1,7 @@
 use crate::Rc;
 use crate::api::assets::AssetModule;
-use crate::api::draw::DrawModule;
 use crate::api::game::GameModule;
+use crate::api::graphics::GraphicsModule;
 use crate::api::input::InputModule;
 use std::cell::RefCell;
 
@@ -9,12 +9,12 @@ use mlua::prelude::*;
 use raylib::prelude::*;
 
 pub mod assets;
-pub mod draw;
 pub mod game;
+pub mod graphics;
 pub mod input;
 
 pub struct API {
-    draw: Rc<DrawModule>,
+    draw: Rc<GraphicsModule>,
     input: Rc<InputModule>,
     game: Rc<RefCell<GameModule>>,
     assets: Rc<AssetModule>,
@@ -24,7 +24,7 @@ impl API {
     pub fn new(rl: Rc<RefCell<RaylibHandle>>, thread: Rc<RaylibThread>) -> Self {
         let assets = Rc::new(AssetModule::new(rl.clone(), thread.clone()));
         Self {
-            draw: Rc::new(DrawModule::new(assets.clone())),
+            draw: Rc::new(GraphicsModule::new(assets.clone())),
             input: Rc::new(InputModule::new(rl.clone())),
             game: Rc::new(RefCell::new(GameModule::new())),
             assets,
@@ -32,6 +32,8 @@ impl API {
     }
 
     pub fn init(&self, lua: &Lua) -> LuaResult<()> {
+        lua.globals().set("engine", lua.create_table()?)?;
+
         self.assets.register(lua)?;
         self.draw.register(lua)?;
         self.input.register(lua)?;

@@ -34,12 +34,12 @@ pub enum DrawCommand {
     DrawTextureEx(TextureDataEx),
 }
 
-pub struct DrawModule {
+pub struct GraphicsModule {
     commands: Rc<RefCell<Vec<DrawCommand>>>,
     assets: Rc<AssetModule>,
 }
 
-impl DrawModule {
+impl GraphicsModule {
     pub fn new(assets: Rc<AssetModule>) -> Self {
         Self {
             commands: Rc::new(RefCell::new(Vec::<DrawCommand>::new())),
@@ -135,16 +135,18 @@ impl DrawModule {
     }
 }
 
-impl DrawModule {
+impl GraphicsModule {
     pub fn register(self: &Rc<Self>, lua: &Lua) -> LuaResult<()> {
-        let draw_table = lua.create_table()?;
+        let graphics_table = lua.create_table()?;
 
-        bind_func!(lua, draw_table, "clear", self, clear_background, (color: String));
-        bind_func!(lua, draw_table, "text", self, draw_text, (text: String, x: i32, y: i32, font_size: i32, color: String));
-        bind_func!(lua, draw_table, "texture", self, draw_texture, (texture: String, x: i32, y: i32, tint: String));
-        bind_func!(lua, draw_table, "texture_ex", self, draw_texture_ex, (texture: String, pos: LuaVector, rot: f32, scale: f32, tint: String));
+        bind_func!(lua, graphics_table, "clear_background", self, clear_background, (color: String));
+        bind_func!(lua, graphics_table, "draw_text", self, draw_text, (text: String, x: i32, y: i32, font_size: i32, color: String));
+        bind_func!(lua, graphics_table, "draw_texture", self, draw_texture, (texture: String, x: i32, y: i32, tint: String));
+        bind_func!(lua, graphics_table, "draw_texture_ex", self, draw_texture_ex, (texture: String, pos: LuaVector, rot: f32, scale: f32, tint: String));
 
-        lua.globals().set("draw", draw_table)?;
+        let engine: LuaTable = lua.globals().get("engine")?;
+        engine.set("graphics", graphics_table)?;
+
         Ok(())
     }
 

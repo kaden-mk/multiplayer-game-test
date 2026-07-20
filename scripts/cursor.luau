@@ -1,11 +1,12 @@
-const Assets = require("./assets")
+const asset_store = require("./util/asset_store")
+
 const Cursor = {}
 
-input.set_cursor_visible(false)
+engine.input.set_cursor_visible(false)
 
 function Cursor.on_update(dt: number)
-    const pos = input.get_mouse_position()
-    draw.texture_ex(Assets.cursor, pos, 0, 0.85, "WHITE")
+    const pos = engine.input.get_mouse_position()
+    engine.graphics.draw_texture_ex(asset_store.cursor, pos, 0, 0.85, "WHITE")
 end
 
 return Cursor

@@ -46,7 +46,8 @@ impl AssetModule {
 
         bind_func!(lua, assets_table, "load_texture", self, load_texture, (filename: String));
 
-        lua.globals().set("assets", assets_table)?;
+        let engine: LuaTable = lua.globals().get("engine")?;
+        engine.set("assets", assets_table)?;
 
         Ok(())
     }
