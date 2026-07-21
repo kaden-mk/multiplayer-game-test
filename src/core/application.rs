@@ -9,7 +9,7 @@ use std::{
 
 use crate::{
     api::API,
-    core::types::{LuaColor, LuaRect},
+    core::types::{LuaColor, LuaNPatchInfo, LuaRect},
 };
 
 pub struct Application {
@@ -38,6 +38,7 @@ impl Application {
 
         LuaColor::create(&lua)?;
         LuaRect::create(&lua)?;
+        LuaNPatchInfo::create(&lua)?;
 
         Ok(Self {
             api,

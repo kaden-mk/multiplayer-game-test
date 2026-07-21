@@ -35,3 +35,14 @@ macro_rules! keys {
         }
     };
 }
+
+#[macro_export]
+macro_rules! npatch_layouts {
+    ($($name:ident),* $(,)?) => {
+        paste! {
+            pub const NPATCH_LAYOUTS: &[(&str, NPatchLayout)] = &[
+                $( (stringify!($name), NPatchLayout::[<NPATCH_ $name>]) ),*
+            ];
+        }
+    };
+}

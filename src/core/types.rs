@@ -1,7 +1,9 @@
+// TODO: rewrite this entire fkn thing LOL
+
 use mlua::prelude::*;
 use raylib::prelude::*;
 
-use crate::core::util::to_color;
+use crate::core::util::{from_npatch_layout, to_color, to_npatch_layout};
 
 pub struct LuaColor(pub Color);
 
@@ -10,7 +12,7 @@ impl LuaColor {
         let t = lua.create_table()?;
 
         let func = lua.create_function(|lua, value: LuaMultiValue| {
-            let color = LuaColor::from_lua_multi(value, lua)?;
+            let color = LuaColor::from_values(value, lua)?;
             let result = lua.create_table()?;
             result.set("r", color.0.r)?;
             result.set("g", color.0.g)?;
@@ -29,7 +31,7 @@ impl LuaColor {
 }
 
 impl LuaColor {
-    fn from_lua(value: LuaValue) -> LuaResult<Self> {
+    fn from_value(value: LuaValue) -> LuaResult<Self> {
         match value {
             LuaValue::String(s) => Ok(LuaColor(to_color(&s.to_str()?.to_uppercase())?)),
             LuaValue::Table(t) => {
@@ -61,13 +63,13 @@ impl LuaColor {
     }
 }
 
-impl FromLuaMulti for LuaColor {
-    fn from_lua_multi(multi_value: LuaMultiValue, _lua: &Lua) -> LuaResult<Self> {
+impl LuaColor {
+    fn from_values(multi_value: LuaMultiValue, _lua: &Lua) -> LuaResult<Self> {
         let mut iter = multi_value.into_iter();
 
         match iter.next() {
-            Some(LuaValue::Table(t)) => LuaColor::from_lua(LuaValue::Table(t)),
-            Some(LuaValue::String(s)) => LuaColor::from_lua(LuaValue::String(s)),
+            Some(LuaValue::Table(t)) => LuaColor::from_value(LuaValue::Table(t)),
+            Some(LuaValue::String(s)) => LuaColor::from_value(LuaValue::String(s)),
 
             Some(LuaValue::Integer(r)) => {
                 let r = r as u8;
@@ -113,6 +115,12 @@ impl FromLuaMulti for LuaColor {
     }
 }
 
+impl FromLua for LuaColor {
+    fn from_lua(value: LuaValue, lua: &Lua) -> LuaResult<Self> {
+        Self::from_values(LuaMultiValue::from_vec(vec![value]), lua)
+    }
+}
+
 pub struct LuaRect(pub Rectangle);
 
 impl LuaRect {
@@ -120,7 +128,7 @@ impl LuaRect {
         let t = lua.create_table()?;
 
         let func = lua.create_function(|lua, values: LuaMultiValue| {
-            let rect = LuaRect::from_lua_multi(values, lua)?;
+            let rect = LuaRect::from_values(values, lua)?;
             let result = lua.create_table()?;
             result.set("x", rect.0.x)?;
             result.set("y", rect.0.y)?;
@@ -137,8 +145,17 @@ impl LuaRect {
     }
 }
 
-impl FromLuaMulti for LuaRect {
-    fn from_lua_multi(values: LuaMultiValue, _lua: &Lua) -> LuaResult<Self> {
+impl LuaRect {
+    fn from_values(values: LuaMultiValue, _lua: &Lua) -> LuaResult<Self> {
+        // coerce either Integer or Number to f32
+        fn num(v: Option<LuaValue>) -> Option<f32> {
+            match v {
+                Some(LuaValue::Integer(n)) => Some(n as f32),
+                Some(LuaValue::Number(n)) => Some(n as f32),
+                _ => None,
+            }
+        }
+
         let mut iter = values.into_iter();
 
         match iter.next() {
@@ -149,23 +166,11 @@ impl FromLuaMulti for LuaRect {
                 height: t.get("height")?,
             })),
 
-            Some(LuaValue::Number(x)) => {
-                let x = x as f32;
-
-                let y = match iter.next() {
-                    Some(LuaValue::Number(v)) => v as f32,
-                    _ => x,
-                };
-
-                let width = match iter.next() {
-                    Some(LuaValue::Number(v)) => v as f32,
-                    _ => 2.0,
-                };
-
-                let height = match iter.next() {
-                    Some(LuaValue::Number(v)) => v as f32,
-                    _ => 1.0,
-                };
+            first @ Some(LuaValue::Integer(_)) | first @ Some(LuaValue::Number(_)) => {
+                let x = num(first).unwrap();
+                let y = num(iter.next()).unwrap_or(x);
+                let width = num(iter.next()).unwrap_or(2.0);
+                let height = num(iter.next()).unwrap_or(1.0);
 
                 Ok(LuaRect(Rectangle {
                     x,
@@ -187,6 +192,73 @@ impl FromLuaMulti for LuaRect {
                 width: 2.0,
                 height: 1.0,
             })),
+        }
+    }
+}
+
+impl FromLua for LuaRect {
+    fn from_lua(value: LuaValue, lua: &Lua) -> LuaResult<Self> {
+        Self::from_values(LuaMultiValue::from_vec(vec![value]), lua)
+    }
+}
+
+pub struct LuaNPatchInfo(pub NPatchInfo);
+
+impl LuaNPatchInfo {
+    pub fn create(lua: &Lua) -> LuaResult<()> {
+        let t = lua.create_table()?;
+
+        let func = lua.create_function(|lua: &Lua, value: LuaValue| {
+            let p = LuaNPatchInfo::from_lua(value, lua)?.0;
+            let result = lua.create_table()?;
+            result.set("top", p.top)?;
+            result.set("bottom", p.bottom)?;
+            result.set("left", p.left)?;
+            result.set("right", p.right)?;
+            result.set("layout", from_npatch_layout(p.layout))?;
+
+            let s = p.source;
+            let rect = lua.create_table()?;
+            rect.set("x", s.x)?;
+            rect.set("y", s.y)?;
+            rect.set("height", s.height)?;
+            rect.set("width", s.width)?;
+            result.set("source", rect)?;
+
+            Ok(result)
+        })?;
+
+        t.set("new", func)?;
+        lua.globals().set("NPatchInfo", t)?;
+
+        Ok(())
+    }
+}
+
+impl FromLua for LuaNPatchInfo {
+    fn from_lua(value: LuaValue, _lua: &Lua) -> LuaResult<Self> {
+        match value {
+            LuaValue::Table(t) => {
+                let source: LuaRect = t.get("source")?;
+                let layout: String = t.get("layout")?;
+
+                Ok(LuaNPatchInfo(NPatchInfo {
+                    source: source.0,
+                    top: t.get("top")?,
+                    right: t.get("right")?,
+                    left: t.get("left")?,
+                    bottom: t.get("bottom")?,
+                    layout: to_npatch_layout(&layout)?,
+                }))
+            }
+
+            other => Err(LuaError::FromLuaConversionError {
+                from: other.type_name(),
+                to: "NPatchInfo".into(),
+                message: Some(
+                    "expected a table with values of { source, right, left, top, bottom } ".into(),
+                ),
+            }),
         }
     }
 }

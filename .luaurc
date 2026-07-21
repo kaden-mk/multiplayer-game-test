@@ -1,6 +1,6 @@
 {
   "languageMode": "strict",
   "aliases": {
-    "engine": "./scripts/engine_stubs"
+    "interface": "./scripts/interface"
   }
 }
