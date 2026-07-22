@@ -40,12 +40,21 @@ pub struct TextureDataNPatch {
     tint: Color,
 }
 
+pub struct RectangleDrawData {
+    x: i32,
+    y: i32,
+    w: i32,
+    h: i32,
+    color: Color,
+}
+
 pub enum DrawCommand {
     ClearBackground(Color),
     DrawText(TextData),
     DrawTexture(TextureData),
     DrawTextureEx(TextureDataEx),
     DrawTextureNPatch(TextureDataNPatch),
+    DrawRectangle(RectangleDrawData),
 }
 
 pub struct GraphicsModule {
@@ -177,6 +186,23 @@ impl GraphicsModule {
 
         Ok(())
     }
+
+    fn draw_rectangle(&self, rect: LuaRect, color: LuaColor) -> LuaResult<()> {
+        let rect = rect.0;
+        let rect_data = RectangleDrawData {
+            x: rect.x as i32,
+            y: rect.y as i32,
+            w: rect.width as i32,
+            h: rect.height as i32,
+            color: color.0,
+        };
+
+        self.commands
+            .borrow_mut()
+            .push(DrawCommand::DrawRectangle(rect_data));
+
+        Ok(())
+    }
 }
 
 impl GraphicsModule {
@@ -188,6 +214,7 @@ impl GraphicsModule {
         bind_func!(lua, graphics_table, "draw_texture", self, draw_texture, (texture: String, x: i32, y: i32, tint: LuaColor) -> ());
         bind_func!(lua, graphics_table, "draw_texture_ex", self, draw_texture_ex, (texture: String, pos: LuaVector, rot: f32, scale: f32, tint: LuaColor) -> ());
         bind_func!(lua, graphics_table, "draw_texture_npatch", self, draw_texture_npatch, (texture: String, n_patch_info: LuaNPatchInfo, dest_rec: LuaRect, origin: LuaVector, rotation: f32, tint: LuaColor) -> ());
+        bind_func!(lua, graphics_table, "draw_rectangle", self, draw_rectangle, (rect: LuaRect, color: LuaColor) -> ());
 
         let engine: LuaTable = lua.globals().get("engine")?;
         engine.set("graphics", graphics_table)?;
@@ -231,6 +258,10 @@ impl GraphicsModule {
                         texture.rotation,
                         texture.tint,
                     );
+                }
+
+                DrawCommand::DrawRectangle(rect) => {
+                    d.draw_rectangle(rect.x, rect.y, rect.w, rect.h, rect.color);
                 }
             }
         }

@@ -2,7 +2,7 @@ use std::{collections::BTreeMap, fmt::Write};
 
 use multiplayer_game_test::core::{
     typegen::FnSig,
-    util::{COLORS, KEYS, NPATCH_LAYOUTS},
+    util::{COLORS, KEYS, MOUSE_BUTTONS, NPATCH_LAYOUTS},
 };
 
 fn luau_type(rust: &str) -> String {
@@ -56,6 +56,14 @@ fn main() {
         .collect::<Vec<_>>()
         .join(" | ");
     writeln!(out, "export type KeyboardKey = {names}").unwrap();
+
+    // Mouse Buttons
+    let names = MOUSE_BUTTONS
+        .iter()
+        .map(|(n, _)| format!("\"{n}\""))
+        .collect::<Vec<_>>()
+        .join(" | ");
+    writeln!(out, "export type MouseButton = {names}").unwrap();
 
     // NPatch Layouts
     let names = NPATCH_LAYOUTS

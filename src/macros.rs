@@ -26,6 +26,16 @@ macro_rules! colors {
 }
 
 #[macro_export]
+macro_rules! mouse_buttons {
+    ($($name:ident),* $(,)?) => {
+        paste! {
+            pub const MOUSE_BUTTONS: &[(&str, MouseButton)] = &[
+                $( (stringify!($name), MouseButton::[<MOUSE_ $name>]) ),*
+            ];
+        }
+    };
+}
+#[macro_export]
 macro_rules! keys {
     ($($name:ident),* $(,)?) => {
         paste! {

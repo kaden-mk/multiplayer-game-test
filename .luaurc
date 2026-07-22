@@ -1,6 +1,7 @@
 {
   "languageMode": "strict",
   "aliases": {
-    "interface": "./scripts/interface"
+    "interface": "./scripts/interface",
+    "lib": "./scripts/lib"
   }
 }

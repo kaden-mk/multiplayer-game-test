@@ -1,8 +1,8 @@
 use mlua::prelude::*;
 use paste::paste;
-use raylib::ffi::{Color, KeyboardKey, NPatchLayout};
+use raylib::ffi::{Color, KeyboardKey, MouseButton, NPatchLayout};
 
-use crate::{colors, keys, npatch_layouts};
+use crate::{colors, keys, mouse_buttons, npatch_layouts};
 
 colors!(
     LIGHTGRAY, GRAY, DARKGRAY, YELLOW, GOLD, ORANGE, PINK, RED, MAROON, GREEN, LIME, DARKGREEN,
@@ -91,6 +91,7 @@ keys!(
     F12
 );
 npatch_layouts!(NINE_PATCH, THREE_PATCH_HORIZONTAL, THREE_PATCH_VERTICAL); // might be a bit overkill lol
+mouse_buttons!(BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT);
 
 pub fn to_color(name: &str) -> Result<Color, LuaError> {
     COLORS
@@ -105,6 +106,14 @@ pub fn to_keyboard_key(name: &str) -> Result<KeyboardKey, LuaError> {
         .find(|(n, _)| *n == name)
         .map(|(_, k)| *k)
         .ok_or_else(|| LuaError::RuntimeError(format!("unknown key '{name}'")))
+}
+
+pub fn to_mouse_button(name: &str) -> Result<MouseButton, LuaError> {
+    MOUSE_BUTTONS
+        .iter()
+        .find(|(n, _)| *n == name)
+        .map(|(_, k)| *k)
+        .ok_or_else(|| LuaError::RuntimeError(format!("unknown mouse button '{name}'")))
 }
 
 pub fn to_npatch_layout(name: &str) -> Result<NPatchLayout, LuaError> {

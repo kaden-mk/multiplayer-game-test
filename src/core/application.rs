@@ -50,6 +50,8 @@ impl Application {
     }
 
     pub fn load_scripts(&mut self, dir: &str) -> LuaResult<()> {
+        self.scripts.clear();
+
         let path = Path::new(dir);
 
         if path.is_dir() {

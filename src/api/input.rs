@@ -3,7 +3,10 @@ use std::{cell::RefCell, rc::Rc};
 use mlua::{Vector, prelude::*};
 use raylib::prelude::*;
 
-use crate::{bind_func, core::util::to_keyboard_key};
+use crate::{
+    bind_func,
+    core::util::{to_keyboard_key, to_mouse_button},
+};
 
 pub struct InputModule {
     rl: Rc<RefCell<RaylibHandle>>,
@@ -36,6 +39,13 @@ impl InputModule {
 
         Ok(luau_vector)
     }
+
+    fn is_mouse_button_released(&self, button: String) -> LuaResult<bool> {
+        Ok(self
+            .rl
+            .borrow_mut()
+            .is_mouse_button_released(to_mouse_button(&button)?))
+    }
 }
 
 impl InputModule {
@@ -52,6 +62,7 @@ impl InputModule {
             get_mouse_position,
             () -> LuaVector
         );
+        bind_func!(lua, input_table, "is_mouse_button_released", self, is_mouse_button_released, (button: String) -> bool);
 
         let engine: LuaTable = lua.globals().get("engine")?;
         engine.set("input", input_table)?;
