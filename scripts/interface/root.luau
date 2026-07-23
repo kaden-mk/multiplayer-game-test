@@ -1,11 +1,22 @@
 const Element = require("@interface/element")
 
 const RootUI = {}
-RootUI.container = Element.new()
+const container = Element.new()
+
+function RootUI:add<T>(child: T): T
+    return container:add(child)
+end
+
+function RootUI:remove<T>(child: T)
+    container:remove(child)
+end
 
 function RootUI.on_update(dt)
-    RootUI.container:update(dt)
-    RootUI.container:draw()
+    container:update(dt)
+end
+
+function RootUI.on_draw()
+    container:draw()
 end
 
 return RootUI

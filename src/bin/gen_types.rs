@@ -132,6 +132,11 @@ fn main() {
         }
         writeln!(out, "\t}},").unwrap();
     }
+
+    // optional functions
+    writeln!(out, "\ton_update: ((dt: number) -> ())?,").unwrap();
+    writeln!(out, "\ton_draw: (() -> ())?,").unwrap();
+
     writeln!(out, "}}").unwrap();
     std::fs::write("types/engine.d.luau", out).unwrap();
 }

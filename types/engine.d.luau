@@ -45,4 +45,6 @@ declare engine: {
 		is_mouse_button_released: (button: string) -> boolean,
 		is_key_down: (key: string) -> boolean,
 	},
+	on_update: ((dt: number) -> ())?,
+	on_draw: (() -> ())?,
 }

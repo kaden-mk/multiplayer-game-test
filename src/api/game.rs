@@ -1,32 +1,35 @@
 use mlua::prelude::*;
 
-pub struct GameModule {
-    scripts: Vec<LuaTable>,
-}
+pub struct GameModule;
 
 impl GameModule {
-    pub fn new() -> Self {
-        Self {
-            scripts: Vec::new(),
-        }
-    }
+    pub fn update(dt: f32, lua: &Lua) -> LuaResult<()> {
+        let engine: LuaTable = lua.globals().get("engine")?;
 
-    pub fn register_script(&mut self, lua: &Lua, script: &str, name: &str) -> LuaResult<()> {
-        let table: LuaTable = lua.load(script).set_name(name).eval()?;
-        self.scripts.push(table);
+        if let Ok(func) = engine.get::<LuaFunction>("on_update") {
+            let result = func.call::<()>(dt);
+
+            match result {
+                Ok(_) => {}
+                Err(err) => {
+                    eprintln!("Script Error: {}", err)
+                }
+            }
+        }
+
         Ok(())
     }
 
-    pub fn update(&self, dt: f32) -> LuaResult<()> {
-        for script in &self.scripts {
-            if let Ok(func) = script.get::<LuaFunction>("on_update") {
-                let result = func.call::<()>(dt);
+    pub fn draw(lua: &Lua) -> LuaResult<()> {
+        let engine: LuaTable = lua.globals().get("engine")?;
 
-                match result {
-                    Ok(_) => {}
-                    Err(err) => {
-                        eprintln!("Script Error: {}", err)
-                    }
+        if let Ok(func) = engine.get::<LuaFunction>("on_draw") {
+            let result = func.call::<()>(());
+
+            match result {
+                Ok(_) => {}
+                Err(err) => {
+                    eprintln!("Script Error: {}", err)
                 }
             }
         }
