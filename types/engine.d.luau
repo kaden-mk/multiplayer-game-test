@@ -48,3 +48,5 @@ declare engine: {
 	on_update: ((dt: number) -> ())?,
 	on_draw: (() -> ())?,
 }
+declare discover: (path: string) -> { string }
+declare execute: (file: string) -> ()

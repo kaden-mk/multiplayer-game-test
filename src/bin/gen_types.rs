@@ -136,7 +136,10 @@ fn main() {
     // optional functions
     writeln!(out, "\ton_update: ((dt: number) -> ())?,").unwrap();
     writeln!(out, "\ton_draw: (() -> ())?,").unwrap();
-
     writeln!(out, "}}").unwrap();
+
+    writeln!(out, "declare discover: (path: string) -> {{ string }}").unwrap();
+    writeln!(out, "declare execute: (file: string) -> ()").unwrap();
+
     std::fs::write("types/engine.d.luau", out).unwrap();
 }

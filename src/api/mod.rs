@@ -14,6 +14,7 @@ pub mod assets;
 pub mod game;
 pub mod graphics;
 pub mod input;
+pub mod luau_fs;
 
 pub struct API {
     draw: Rc<GraphicsModule>,
@@ -40,6 +41,8 @@ impl API {
 
         let require = lua.create_require_function(LuaFsRequirer::default())?;
         lua.globals().set("require", require)?;
+
+        luau_fs::FsModule::init(&lua)?;
 
         let init_script = Path::new("scripts/init.luau").to_path_buf();
         let init_script = fs::read_to_string(init_script)?;
