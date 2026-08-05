@@ -1,4 +1,5 @@
-const root = require("@interface/root")
+const scheduler = require("@lib/scheduler")
+
 const systems = discover("scripts/systems")
 
 for _, system in systems do
@@ -6,9 +7,9 @@ for _, system in systems do
 end
 
 function engine.on_update(dt: number)
-    root.on_update(dt)
+    scheduler.update(dt)
 end
 
 function engine.on_draw()
-    root.on_draw()
+    scheduler.draw()
 end

@@ -9,6 +9,7 @@ export type UIElement = {
     is_relative: boolean,
     children: { UIElement },
     parent: UIElement?,
+    on_update: ((self: UIElement, dt: number) -> ())?,
 
     add: <T>(self: UIElement, child: T) -> T,
     remove: (self: UIElement, child: UIElement) -> (),
@@ -104,6 +105,10 @@ function Element.get_absolute_position(self: UIElement): vector
 end
 
 function Element.update(self: UIElement, dt: number)
+    if self.on_update then
+        self:on_update(dt)
+    end
+
     for _, child in self.children do
         if child.visible then
             child:update(dt)

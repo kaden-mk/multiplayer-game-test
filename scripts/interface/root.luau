@@ -1,4 +1,5 @@
 const Element = require("@interface/element")
+const Scheduler = require("@lib/scheduler")
 const UDim2 = require("@lib/udim2")
 
 const RootUI = {}
@@ -14,12 +15,15 @@ function RootUI:remove<T>(child: T)
     container:remove(child)
 end
 
-function RootUI.on_update(dt)
+const function on_update(dt: number)
     container:update(dt)
 end
 
-function RootUI.on_draw()
+const function on_draw()
     container:draw()
 end
+
+Scheduler.add_on_update(on_update, 10)
+Scheduler.add_on_draw(on_draw, 10)
 
 return RootUI
