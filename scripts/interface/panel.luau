@@ -20,13 +20,12 @@ export type UIPanel = Element.UIElement & {
   npatch_info: NPatchInfo?
 }
 
-const Panel = setmetatable({}, { __index = Element })
-Panel.__index = Panel
+const Panel = Element:extend()
 
 function Panel.new(props: UIPanelProps?): UIPanel
   props = props or {}
 
-  const self = setmetatable(Element.new(), Panel) :: UIPanel
+  const self = Element.new(Panel) 
   self.pos = props.pos or UDim2(0, 0, 0, 0)
   self.size = props.size or UDim2(0, 0, 0, 0)
   self.anchor = props.anchor or vector.create(0, 0)

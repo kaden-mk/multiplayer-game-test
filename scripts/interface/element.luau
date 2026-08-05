@@ -24,17 +24,17 @@ export type UIElement = {
 const Element = {}
 Element.__index = Element
 
-function Element.new(): UIElement
-    const self = setmetatable({}, Element)
-    self.pos = UDim2(0, 0, 0, 0)
-    self.size = UDim2(0, 0, 0, 0)
-    self.anchor = vector.create(0, 0)
-    self.visible = true
-    self.is_relative = false
-    self.children = {}
-    self.parent = nil
+function Element.new(self): UIElement
+    const element = setmetatable({}, self)
+    element.pos = UDim2(0, 0, 0, 0)
+    element.size = UDim2(0, 0, 0, 0)
+    element.anchor = vector.create(0, 0)
+    element.visible = true
+    element.is_relative = false
+    element.children = {}
+    element.parent = nil
 
-    return self :: UIElement
+    return element
 end
 
 function Element.add<T>(self: UIElement, child: T)
@@ -117,6 +117,20 @@ function Element.draw(self: UIElement)
             child:draw()
         end
     end
+end
+
+function Element:extend()
+  const class = {}
+  class.__index = class
+
+  setmetatable(class, {
+    __index = self,
+    __call = function(c, ...)
+      return c.new(...)
+    end
+  })
+
+  return class
 end
 
 return Element

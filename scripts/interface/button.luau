@@ -17,13 +17,12 @@ export type UIButton = Element.UIElement & {
     hovering: boolean,
 }
 
-const Button = setmetatable({}, { __index = Element })
-Button.__index = Button
+const Button = Element:extend()
 
 function Button.new(props: UIButtonProps?): UIButton
     props = props or {}
 
-    const self = setmetatable(Element.new(), Button) :: UIButton
+    const self = Element.new(Button)
     self.pos = props.pos or UDim2(0, 0, 0, 0)
     self.size = props.size or UDim2(0, 0, 0, 0)
     self.anchor = props.anchor or vector.create(0, 0)

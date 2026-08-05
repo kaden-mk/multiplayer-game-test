@@ -21,8 +21,7 @@ export type UIText = Element.UIElement & {
   spacing: number?
 }
 
-const Text = setmetatable({}, { __index = Element })
-Text.__index = Text
+const Text = Element:extend()
 
 function Text.new(props: UITextProps): UIText
   props = props or {}
@@ -30,7 +29,7 @@ function Text.new(props: UITextProps): UIText
   if not props.text then error("No text was provided!") end
   if not props.font_size then error("No font size was provided!") end
 
-  const self = setmetatable(Element.new(), Text) :: UIText
+  const self = Element.new(Text)
   self.pos = props.pos or UDim2(0, 0, 0, 0)
   self.font_size = props.font_size
   self.is_relative = props.is_relative or false

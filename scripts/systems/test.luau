@@ -16,14 +16,14 @@ const npatch_info = NPatchInfo.new({
 })
 
 const texture = engine.assets.load_texture("assets/button.png")
-const panel = Panel.new({
+const panel = Panel {
   pos = UDim2(0.5, 0, 0.5, 0),
   size = UDim2(0, 240, 0, 56),
   anchor = vector.create(0.5, 0.5),
   is_relative = true,
   texture = texture,
   npatch_info = npatch_info
-})
+}
 
 const button = Button.new({
   pos = UDim2(0.5, 0, 0.5, 0),
@@ -31,11 +31,11 @@ const button = Button.new({
   is_relative = true,
   anchor = vector.create(0.5, 0.5)
 })
-panel:add(button)
 
 button.on_click:connect(function(button_type)
   print(button_type)
 end)
+panel:add(button)
 
 const font = engine.assets.load_font("assets/PixeloidMono.ttf")
 const text = Text.new({
