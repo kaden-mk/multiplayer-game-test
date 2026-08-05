@@ -26,7 +26,7 @@ impl API {
     pub fn new(rl: Rc<RefCell<RaylibHandle>>, thread: Rc<RaylibThread>) -> Self {
         let assets = Rc::new(AssetModule::new(rl.clone(), thread.clone()));
         Self {
-            draw: Rc::new(GraphicsModule::new(assets.clone())),
+            draw: Rc::new(GraphicsModule::new(assets.clone(), rl.clone())),
             input: Rc::new(InputModule::new(rl.clone())),
             assets,
         }

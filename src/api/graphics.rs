@@ -16,6 +16,15 @@ pub struct TextData {
     color: Color,
 }
 
+pub struct TextDataEx {
+    font: Rc<Font>,
+    text: String,
+    pos: Vector2,
+    font_size: f32,
+    spacing: f32,
+    tint: Color,
+}
+
 pub struct TextureData {
     texture: Rc<Texture2D>,
     x: i32,
@@ -51,6 +60,7 @@ pub struct RectangleDrawData {
 pub enum DrawCommand {
     ClearBackground(Color),
     DrawText(TextData),
+    DrawTextEx(TextDataEx),
     DrawTexture(TextureData),
     DrawTextureEx(TextureDataEx),
     DrawTextureNPatch(TextureDataNPatch),
@@ -60,13 +70,15 @@ pub enum DrawCommand {
 pub struct GraphicsModule {
     commands: Rc<RefCell<Vec<DrawCommand>>>,
     assets: Rc<AssetModule>,
+    rl: Rc<RefCell<RaylibHandle>>,
 }
 
 impl GraphicsModule {
-    pub fn new(assets: Rc<AssetModule>) -> Self {
+    pub fn new(assets: Rc<AssetModule>, rl: Rc<RefCell<RaylibHandle>>) -> Self {
         Self {
             commands: Rc::new(RefCell::new(Vec::<DrawCommand>::new())),
             assets,
+            rl,
         }
     }
 
@@ -98,6 +110,39 @@ impl GraphicsModule {
         self.commands
             .borrow_mut()
             .push(DrawCommand::DrawText(text_data));
+
+        Ok(())
+    }
+
+    fn draw_text_ex(
+        &self,
+        font: String,
+        text: String,
+        pos: LuaVector,
+        font_size: f32,
+        spacing: f32,
+        tint: LuaColor,
+    ) -> LuaResult<()> {
+        match self.assets.get_font(font.as_str()) {
+            Some(font) => {
+                let text_data = TextDataEx {
+                    font,
+                    text,
+                    pos: Vector2::new(pos.x(), pos.y()),
+                    font_size,
+                    spacing,
+                    tint: tint.0,
+                };
+
+                self.commands
+                    .borrow_mut()
+                    .push(DrawCommand::DrawTextEx(text_data));
+            }
+
+            None => {
+                eprintln!("font '{}' doesn't exist", font);
+            }
+        }
 
         Ok(())
     }
@@ -203,6 +248,32 @@ impl GraphicsModule {
 
         Ok(())
     }
+
+    fn measure_text(&self, text: String, font_size: i32) -> LuaResult<i32> {
+        Ok(self.rl.borrow_mut().measure_text(&text, font_size))
+    }
+
+    fn measure_text_ex(
+        &self,
+        font: String,
+        text: String,
+        font_size: f32,
+        spacing: f32,
+    ) -> LuaResult<LuaVector> {
+        let font = match self.assets.get_font(&font) {
+            Some(font) => font,
+            None => {
+                return Err(mlua::Error::RuntimeError(format!(
+                    "font {} doesn't exist",
+                    font
+                )));
+            }
+        };
+
+        let size = font.measure_text(&text, font_size, spacing);
+
+        Ok(LuaVector::new(size.x, size.y, 0.0))
+    }
 }
 
 impl GraphicsModule {
@@ -211,10 +282,13 @@ impl GraphicsModule {
 
         bind_func!(lua, graphics_table, "clear_background", self, clear_background, (color: LuaColor) -> ());
         bind_func!(lua, graphics_table, "draw_text", self, draw_text, (text: String, x: i32, y: i32, font_size: i32, color: LuaColor) -> ());
+        bind_func!(lua, graphics_table, "draw_text_ex", self, draw_text_ex, (font: String, text: String, pos: LuaVector, font_size: f32, spacing: f32, tint: LuaColor) -> ());
         bind_func!(lua, graphics_table, "draw_texture", self, draw_texture, (texture: String, x: i32, y: i32, tint: LuaColor) -> ());
         bind_func!(lua, graphics_table, "draw_texture_ex", self, draw_texture_ex, (texture: String, pos: LuaVector, rot: f32, scale: f32, tint: LuaColor) -> ());
         bind_func!(lua, graphics_table, "draw_texture_npatch", self, draw_texture_npatch, (texture: String, n_patch_info: LuaNPatchInfo, dest_rec: LuaRect, origin: LuaVector, rotation: f32, tint: LuaColor) -> ());
         bind_func!(lua, graphics_table, "draw_rectangle", self, draw_rectangle, (rect: LuaRect, color: LuaColor) -> ());
+        bind_func!(lua, graphics_table, "measure_text", self, measure_text, (text: String, font_size: i32) -> i32);
+        bind_func!(lua, graphics_table, "measure_text_ex", self, measure_text_ex, (font: String, text: String, font_size: f32, spacing: f32) -> LuaVector);
 
         let engine: LuaTable = lua.globals().get("engine")?;
         engine.set("graphics", graphics_table)?;
@@ -233,6 +307,17 @@ impl GraphicsModule {
 
                 DrawCommand::DrawText(data) => {
                     d.draw_text(&data.text, data.x, data.y, data.font_size, data.color);
+                }
+
+                DrawCommand::DrawTextEx(data) => {
+                    d.draw_text_ex(
+                        data.font.as_ref(),
+                        &data.text,
+                        data.pos,
+                        data.font_size,
+                        data.spacing,
+                        data.tint,
+                    );
                 }
 
                 DrawCommand::DrawTexture(texture) => {

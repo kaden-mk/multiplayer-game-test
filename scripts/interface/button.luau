@@ -1,10 +1,14 @@
 const Element = require("@interface/element")
 const math_util = require("@lib/math_util")
 const Signal = require("@lib/signal")
+const UDim2 = require("@lib/udim2")
+type UDim2 = UDim2.UDim2
 
 export type UIButtonProps = {
-    pos: vector?,
-    size: vector?
+    pos: UDim2?,
+    size: UDim2?,
+    is_relative: boolean?,
+    anchor: vector?
 }
 
 export type UIButton = Element.UIElement & {
@@ -16,23 +20,30 @@ export type UIButton = Element.UIElement & {
 const Button = setmetatable({}, { __index = Element })
 Button.__index = Button
 
-function Button.new(props: UIButtonProps): UIButton
+function Button.new(props: UIButtonProps?): UIButton
+    props = props or {}
+
     const self = setmetatable(Element.new(), Button) :: UIButton
-    self.pos = props.pos or vector.create(0, 0)
-    self.size = props.size or vector.create(0, 0)
+    self.pos = props.pos or UDim2(0, 0, 0, 0)
+    self.size = props.size or UDim2(0, 0, 0, 0)
+    self.anchor = props.anchor or vector.create(0, 0)
+    self.is_relative = props.is_relative or false
+    self.hovering = false
     self.on_click = Signal.new()
     self.on_hover = Signal.new()
-    self.hovering = false
 
     return self
 end
 
-function Button.update(self: UIButton, dt)
+function Button.update(self: UIButton, dt: number)
     const mouse_pos = engine.input.get_mouse_position()
+
+    const pos = self:get_top_left_position()
+    const size = self:get_absolute_size()
 
     -- HOVERING
     const old_hover = self.hovering
-    self.hovering = math_util.is_point_in_rect(mouse_pos, self.pos, self.size)
+    self.hovering = math_util.is_point_in_rect(mouse_pos, pos, size)
 
     if old_hover ~= self.hovering then
         self.on_hover:fire(self.hovering)
