@@ -6,6 +6,7 @@ export type UIElement = {
     size: UDim2,
     anchor: vector,
     visible: boolean,
+    zindex: number,
     is_relative: boolean,
     children: { UIElement },
     parent: UIElement?,
@@ -30,6 +31,7 @@ function Element.new(self): UIElement
     element.pos = UDim2(0, 0, 0, 0)
     element.size = UDim2(0, 0, 0, 0)
     element.anchor = vector.create(0, 0)
+    element.zindex = 0
     element.visible = true
     element.is_relative = false
     element.children = {}
@@ -43,6 +45,10 @@ function Element.add<T>(self: UIElement, child: T): T
     table.insert(self.children, element)
     element.parent = self
 
+    table.sort(self.children, function(a: { zindex: number }, b: { zindex: number })
+        return a.zindex < b.zindex
+    end)
+
     return child
 end
 
@@ -53,6 +59,10 @@ function Element.remove(self: UIElement, child: UIElement)
     end
 
     table.remove(self.children, index)
+
+    table.sort(self.children, function(a: { zindex: number }, b: { zindex: number })
+        return a.zindex < b.zindex
+    end)
 end
 
 function Element.get_anchor_offset(self: UIElement): vector

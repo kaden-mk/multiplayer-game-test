@@ -8,6 +8,7 @@ const udim2 = require("@lib/udim2")
 const rect = Rectangle.new(0, 0, 64, 64)
 const texture = engine.assets.load_texture("assets/button.png")
 const font = engine.assets.load_font("assets/PixeloidMono.ttf")
+const hover = engine.assets.load_sound("assets/hover.mp3")
 
 const npatch_info = NPatchInfo.new({
   source = rect,
@@ -73,6 +74,8 @@ return function(props: Props)
 
     button.on_hover:connect(function(entered)
         if entered then
+            engine.audio.play_sound(hover)
+
             x:set_goal(MAX_X)
             y:set_goal(MAX_Y)
 

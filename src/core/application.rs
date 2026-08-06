@@ -25,6 +25,9 @@ impl Application {
 
         let rl = Rc::new(RefCell::new(rl));
         let rl_thread = Rc::new(rl_thread);
+        let rl_audio: &'static RaylibAudio = Box::leak(Box::new(
+            RaylibAudio::init_audio_device().expect("Could not initialize audio device"),
+        ));
 
         let lua = Rc::new(Lua::new());
 
@@ -32,7 +35,7 @@ impl Application {
         LuaRect::create(&lua)?;
         LuaNPatchInfo::create(&lua)?;
 
-        let api = Rc::new(API::new(rl.clone(), rl_thread.clone()));
+        let api = Rc::new(API::new(rl.clone(), rl_thread.clone(), rl_audio));
         api.init(&lua)?;
 
         Ok(Self {

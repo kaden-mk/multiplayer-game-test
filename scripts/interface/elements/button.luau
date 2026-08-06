@@ -5,16 +5,17 @@ const UDim2 = require("@lib/udim2")
 type UDim2 = UDim2.UDim2
 
 export type UIButtonProps = {
-    pos: UDim2?,
-    size: UDim2?,
-    is_relative: boolean?,
-    anchor: vector?
+  pos: UDim2?,
+  size: UDim2?,
+  zindex: number?,
+  is_relative: boolean?,
+  anchor: vector?
 }
 
 export type UIButton = Element.UIElement & {
-    on_click: Signal.Signal<MouseButton>,
-    on_hover: Signal.Signal<boolean>,
-    hovering: boolean,
+  on_click: Signal.Signal<MouseButton>,
+  on_hover: Signal.Signal<boolean>,
+  hovering: boolean,
 }
 
 const Button = Element:extend()
@@ -25,6 +26,7 @@ function Button.new(props: UIButtonProps?): UIButton
     const self = Element.new(Button) :: UIButton
     self.pos = props.pos or UDim2(0, 0, 0, 0)
     self.size = props.size or UDim2(0, 0, 0, 0)
+    self.zindex = props.zindex or 0
     self.anchor = props.anchor or vector.create(0, 0)
     self.is_relative = props.is_relative or false
     self.hovering = false

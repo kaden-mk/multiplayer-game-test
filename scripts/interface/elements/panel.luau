@@ -8,6 +8,7 @@ export type UIPanelProps = {
   is_relative: boolean?,
   anchor: vector?,
   rot: number?,
+  zindex: number?,
   texture: string?,
   color: Color?,
   npatch_info: NPatchInfo?
@@ -28,6 +29,7 @@ function Panel.new(props: UIPanelProps?): UIPanel
   const self = Element.new(Panel) :: UIPanel
   self.pos = props.pos or UDim2(0, 0, 0, 0)
   self.size = props.size or UDim2(0, 0, 0, 0)
+  self.zindex = props.zindex or 0
   self.anchor = props.anchor or vector.create(0, 0)
   self.is_relative = props.is_relative or false
   self.texture = props.texture

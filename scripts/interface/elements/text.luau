@@ -8,6 +8,7 @@ export type UITextProps = {
   color: Color?,
   anchor: vector?,
   spacing: number?,
+  zindex: number?,
   font: string?,
   font_size: number,
   text: string,
@@ -38,6 +39,7 @@ function Text.new(props: UITextProps): UIText
   self.anchor = props.anchor or vector.create(0, 0)
   self.font = props.font
   self.spacing = props.spacing or 0
+  self.zindex = props.zindex or 0
 
   return self
 end

@@ -1,4 +1,5 @@
 use crate::api::assets::AssetModule;
+use crate::api::audio::AudioModule;
 use crate::api::game::GameModule;
 use crate::api::graphics::GraphicsModule;
 use crate::api::input::InputModule;
@@ -11,6 +12,7 @@ use mlua::prelude::*;
 use raylib::prelude::*;
 
 pub mod assets;
+pub mod audio;
 pub mod game;
 pub mod graphics;
 pub mod input;
@@ -20,14 +22,21 @@ pub struct API {
     draw: Rc<GraphicsModule>,
     input: Rc<InputModule>,
     assets: Rc<AssetModule>,
+    audio: Rc<AudioModule>,
 }
 
 impl API {
-    pub fn new(rl: Rc<RefCell<RaylibHandle>>, thread: Rc<RaylibThread>) -> Self {
-        let assets = Rc::new(AssetModule::new(rl.clone(), thread.clone()));
+    pub fn new(
+        rl: Rc<RefCell<RaylibHandle>>,
+        thread: Rc<RaylibThread>,
+        rl_audio: &'static RaylibAudio,
+    ) -> Self {
+        let assets = Rc::new(AssetModule::new(rl.clone(), thread.clone(), rl_audio));
+
         Self {
             draw: Rc::new(GraphicsModule::new(assets.clone(), rl.clone())),
             input: Rc::new(InputModule::new(rl.clone())),
+            audio: Rc::new(AudioModule::new(assets.clone())),
             assets,
         }
     }
@@ -38,6 +47,7 @@ impl API {
         self.assets.register(lua)?;
         self.draw.register(lua)?;
         self.input.register(lua)?;
+        self.audio.register(lua)?;
 
         let require = lua.create_require_function(LuaFsRequirer::default())?;
         lua.globals().set("require", require)?;

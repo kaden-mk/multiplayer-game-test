@@ -29,8 +29,20 @@ declare NPatchInfo: {
 
 declare engine: {
 	assets: {
+		load_sound: (filename: string) -> string,
 		load_texture: (filename: string) -> string,
 		load_font: (filename: string) -> string,
+		load_music_stream: (filename: string) -> string,
+	},
+	audio: {
+		resume_music_stream: (filename: string) -> (),
+		set_music_stream_volume: (filename: string, volume: number) -> (),
+		is_music_stream_playing: (filename: string) -> boolean,
+		stop_music_stream: (filename: string) -> (),
+		update_music_stream: (filename: string) -> (),
+		play_sound: (filename: string) -> (),
+		pause_music_stream: (filename: string) -> (),
+		play_music_stream: (filename: string) -> (),
 	},
 	graphics: {
 		draw_texture_ex: (texture: string, pos: vector, rot: number, scale: number, tint: Color) -> (),
