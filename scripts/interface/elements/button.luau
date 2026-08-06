@@ -20,9 +20,9 @@ export type UIButton = Element.UIElement & {
 const Button = Element:extend()
 
 function Button.new(props: UIButtonProps?): UIButton
-    props = props or {}
+    props = props or {} :: UIButtonProps
 
-    const self = Element.new(Button)
+    const self = Element.new(Button) :: UIButton
     self.pos = props.pos or UDim2(0, 0, 0, 0)
     self.size = props.size or UDim2(0, 0, 0, 0)
     self.anchor = props.anchor or vector.create(0, 0)

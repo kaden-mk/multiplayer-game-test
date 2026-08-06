@@ -23,9 +23,9 @@ export type UIPanel = Element.UIElement & {
 const Panel = Element:extend()
 
 function Panel.new(props: UIPanelProps?): UIPanel
-  props = props or {}
+  props = props or {} :: UIPanelProps
 
-  const self = Element.new(Panel) 
+  const self = Element.new(Panel) :: UIPanel
   self.pos = props.pos or UDim2(0, 0, 0, 0)
   self.size = props.size or UDim2(0, 0, 0, 0)
   self.anchor = props.anchor or vector.create(0, 0)
@@ -39,11 +39,13 @@ function Panel.new(props: UIPanelProps?): UIPanel
 end
 
 function Panel.draw(self: UIPanel)
+  self = self :: UIPanel -- ??? this fixes an error??
+
   const size = self:get_absolute_size()
   const pos = self:get_absolute_position()
   const origin = self:get_anchor_offset()
 
-  if self.npatch_info then
+  if self.npatch_info and self.texture then
     const dest = {
       x = pos.x, y = pos.y,
       width = size.x, height = size.y

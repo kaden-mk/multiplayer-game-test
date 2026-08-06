@@ -36,6 +36,7 @@ declare engine: {
 		draw_texture_ex: (texture: string, pos: vector, rot: number, scale: number, tint: Color) -> (),
 		draw_text_ex: (font: string, text: string, pos: vector, font_size: number, spacing: number, tint: Color) -> (),
 		measure_text_ex: (font: string, text: string, font_size: number, spacing: number) -> vector,
+		get_render_size: () -> vector,
 		draw_texture: (texture: string, x: number, y: number, tint: Color) -> (),
 		draw_text: (text: string, x: number, y: number, font_size: number, color: Color) -> (),
 		draw_texture_npatch: (texture: string, n_patch_info: NPatchInfo, dest_rec: Rectangle, origin: vector, rotation: number, tint: Color) -> (),

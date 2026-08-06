@@ -5,7 +5,8 @@ const UDim2 = require("@lib/udim2")
 const RootUI = {}
 
 const container = Element:new()
-container.size = UDim2(0, 1280, 0, 720)
+const size = engine.graphics.get_render_size()
+container.size = UDim2(0, size.x, 0, size.y)
 
 function RootUI:add<T>(child: T): T
     return container:add(child)

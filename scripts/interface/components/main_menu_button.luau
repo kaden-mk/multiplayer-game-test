@@ -3,6 +3,7 @@ const Text = require("@interface/elements/text")
 const Panel = require("@interface/elements/panel")
 const UDim2 = require("@lib/udim2")
 const Spring = require("@lib/spring")
+const udim2 = require("@lib/udim2")
 
 const rect = Rectangle.new(0, 0, 64, 64)
 const texture = engine.assets.load_texture("assets/button.png")
@@ -22,8 +23,13 @@ const MAX_X = 230
 const MIN_Y = 56
 const MAX_Y = 62
 
-return function(props)
-    props = props or {}
+type Props = {
+  pos: udim2.UDim2,
+  text: string
+}
+
+return function(props: Props)
+    props = props or {} :: Props
 
     if not props.pos then error("No position was declared") end
     if not props.text then error("No text was declared") end

@@ -274,6 +274,13 @@ impl GraphicsModule {
 
         Ok(LuaVector::new(size.x, size.y, 0.0))
     }
+
+    fn get_render_size(&self) -> LuaResult<LuaVector> {
+        let w = self.rl.borrow_mut().get_render_width() as f32;
+        let h = self.rl.borrow_mut().get_render_height() as f32;
+
+        Ok(LuaVector::new(w, h, 0.0))
+    }
 }
 
 impl GraphicsModule {
@@ -289,6 +296,7 @@ impl GraphicsModule {
         bind_func!(lua, graphics_table, "draw_rectangle", self, draw_rectangle, (rect: LuaRect, color: LuaColor) -> ());
         bind_func!(lua, graphics_table, "measure_text", self, measure_text, (text: String, font_size: i32) -> i32);
         bind_func!(lua, graphics_table, "measure_text_ex", self, measure_text_ex, (font: String, text: String, font_size: f32, spacing: f32) -> LuaVector);
+        bind_func!(lua, graphics_table, "get_render_size", self, get_render_size, () -> LuaVector);
 
         let engine: LuaTable = lua.globals().get("engine")?;
         engine.set("graphics", graphics_table)?;

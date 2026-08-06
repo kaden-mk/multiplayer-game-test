@@ -3,5 +3,6 @@
   "aliases": {
     "interface": "./scripts/interface",
     "lib": "./scripts/lib"
-  }
+  },
+  
 }

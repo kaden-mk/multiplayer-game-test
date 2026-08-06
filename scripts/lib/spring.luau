@@ -21,8 +21,13 @@ export type Spring<T> = {
     get_velocity: getter_function<T>
 }
 
-function SpringModule.new<T>(initial: T, config: { frequency: number?, damping: number? }?): Spring<T>
-    const c = config or {}
+type Config = {
+  frequency: number?,
+  damping: number?
+}
+
+function SpringModule.new<T>(initial: T, config: Config?): Spring<T>
+    const c = config or {} :: Config
 
     const self = setmetatable({
         frequency = c.frequency or 8,

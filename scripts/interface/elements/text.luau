@@ -18,18 +18,18 @@ export type UIText = Element.UIElement & {
   text: string,
   color: Color,
   font: string?,
-  spacing: number?
+  spacing: number
 }
 
 const Text = Element:extend()
 
 function Text.new(props: UITextProps): UIText
-  props = props or {}
+  props = props or {} :: UITextProps
 
   if not props.text then error("No text was provided!") end
   if not props.font_size then error("No font size was provided!") end
 
-  const self = Element.new(Text)
+  const self = Element.new(Text) :: UIText
   self.pos = props.pos or UDim2(0, 0, 0, 0)
   self.font_size = props.font_size
   self.is_relative = props.is_relative or false
@@ -43,8 +43,6 @@ function Text.new(props: UITextProps): UIText
 end
 
 function Text.draw(self: UIText)
-  const pos = self:get_absolute_position()
-
   if not self.font then
     const width = engine.graphics.measure_text(self.text, self.font_size)
     self.size = UDim2(0, width, 0, self.font_size)

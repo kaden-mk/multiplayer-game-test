@@ -26,7 +26,7 @@ const Element = {}
 Element.__index = Element
 
 function Element.new(self): UIElement
-    const element = setmetatable({}, self)
+    const element = setmetatable({}, self) :: UIElement
     element.pos = UDim2(0, 0, 0, 0)
     element.size = UDim2(0, 0, 0, 0)
     element.anchor = vector.create(0, 0)
@@ -38,7 +38,7 @@ function Element.new(self): UIElement
     return element
 end
 
-function Element.add<T>(self: UIElement, child: T)
+function Element.add<T>(self: UIElement, child: T): T
     const element = child :: UIElement
     table.insert(self.children, element)
     element.parent = self
@@ -74,7 +74,7 @@ function Element.get_parent_size(self: UIElement): vector
     return self.parent:get_absolute_size()
   end
 
-  return vector.create(1280, 720) -- HARDCODED FOR NOW, WILL ADD SCREEN FUNCTION
+  return engine.graphics.get_render_size()
 end
 
 function Element.get_absolute_size(self: UIElement): vector
