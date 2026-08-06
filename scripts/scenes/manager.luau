@@ -1,10 +1,14 @@
+const Element = require("@interface/element")
+const Root = require("@interface/root")
 const Scheduler = require("@lib/scheduler")
+const UDim2 = require("@lib/udim2")
 
 local pending_scene: Scene? = nil
 local current_scene: Scene? = nil
+local current_container: Element.UIElement? = nil
 
 export type Scene = {
-  enter: () -> (),
+  enter: (container: Element.UIElement) -> (),
   exit: () -> (),
   on_update: (dt: number) -> (),
   on_draw: () -> ()
@@ -18,11 +22,25 @@ end
 
 const function on_update(dt: number)
     if pending_scene then
-        if current_scene then current_scene.exit() end
-
-        current_scene = pending_scene
+        const scene = pending_scene
         pending_scene = nil
-        (current_scene :: Scene).enter()
+
+        if current_scene then
+            current_scene.exit()
+
+            if current_container then
+                current_container:destroy()
+                current_container = nil
+            end
+        end
+
+        current_container = Element:new()
+        current_container.is_relative = true
+        current_container.size = UDim2(1, 0, 1, 0)
+        Root:add(current_container)
+        
+        current_scene = scene
+        scene.enter(current_container)
     end
   
     if current_scene then
@@ -31,7 +49,7 @@ const function on_update(dt: number)
 end
 
 const function on_draw()
-    if current_scene then
+    if current_scene and current_container then
         current_scene.on_draw()
     end
 end
