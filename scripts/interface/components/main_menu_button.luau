@@ -6,9 +6,10 @@ const Spring = require("@lib/spring")
 const udim2 = require("@lib/udim2")
 
 const rect = Rectangle.new(0, 0, 64, 64)
-const texture = engine.assets.load_texture("assets/button.png")
-const font = engine.assets.load_font("assets/PixeloidMono.ttf")
-const hover = engine.assets.load_sound("assets/hover.mp3")
+const texture = engine.assets.load_texture("images/button.png")
+const font = engine.assets.load_font("fonts/PixeloidMono.ttf")
+const hover = engine.assets.load_sound("sfx/hover.ogg")
+const click = engine.assets.load_sound("sfx/click.ogg")
 
 const npatch_info = NPatchInfo.new({
   source = rect,
@@ -92,6 +93,8 @@ return function(props: Props)
 
     button.on_click:connect(function(button_type)
         if button_type ~= "BUTTON_LEFT" then return end
+
+        engine.audio.play_sound(click)
 
         x:impulse(-500)
         y:impulse(-250)

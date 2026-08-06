@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashMap, fs, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, fs, path::Path, rc::Rc};
 
 use mlua::prelude::*;
 use raylib::prelude::*;
@@ -80,11 +80,17 @@ impl AssetModule {
     }
 }
 
+fn get_filename(filename: String) -> Result<String, std::io::Error> {
+    let path = Path::new("assets").join(filename);
+    let canonical = fs::canonicalize(path)?;
+    Ok(canonical.to_string_lossy().to_string())
+}
+
 impl AssetModule {
     fn load_texture(&self, filename: String) -> LuaResult<String> {
         let mut textures = self.textures.borrow_mut();
 
-        let filename = fs::canonicalize(&filename)?.to_string_lossy().to_string();
+        let filename = get_filename(filename)?;
 
         if !textures.items.contains_key(&filename) {
             let result = self.rl.borrow_mut().load_texture(&self.thread, &filename);
@@ -110,7 +116,7 @@ impl AssetModule {
     fn load_font(&self, filename: String) -> LuaResult<String> {
         let mut fonts = self.fonts.borrow_mut();
 
-        let filename = fs::canonicalize(&filename)?.to_string_lossy().to_string();
+        let filename = get_filename(filename)?;
 
         if !fonts.items.contains_key(&filename) {
             let result = self.rl.borrow_mut().load_font(&self.thread, &filename);
@@ -134,7 +140,7 @@ impl AssetModule {
     }
 
     fn load_music_stream(&self, filename: String) -> LuaResult<String> {
-        let filename = fs::canonicalize(&filename)?.to_string_lossy().to_string();
+        let filename = get_filename(filename)?;
 
         {
             let songs = self.music_streams.borrow();
@@ -164,7 +170,7 @@ impl AssetModule {
     }
 
     fn load_sound(&self, filename: String) -> LuaResult<String> {
-        let filename = fs::canonicalize(&filename)?.to_string_lossy().to_string();
+        let filename = get_filename(filename)?;
 
         {
             let sounds = self.sounds.borrow();

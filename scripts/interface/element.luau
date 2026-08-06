@@ -20,7 +20,8 @@ export type UIElement = {
     get_top_left_position: (self: UIElement) -> vector,
     get_parent_size: (self: UIElement) -> vector,
     get_absolute_position: (self: UIElement) -> vector,
-    get_absolute_size: (self: UIElement) -> vector
+    get_absolute_size: (self: UIElement) -> vector,
+    destroy: (self: UIElement) -> (),
 }
 
 const Element = {}
@@ -132,6 +133,23 @@ function Element.draw(self: UIElement)
             child:draw()
         end
     end
+end
+
+function Element.destroy(self: UIElement)
+    if self.parent then
+        self.parent:remove(self)
+        self.parent = nil
+    end
+
+    const children = self.children
+    self.children = {}
+
+    for _, child in children do
+        child.parent = nil
+        child:destroy()
+    end
+
+    self.on_update = nil
 end
 
 function Element:extend()

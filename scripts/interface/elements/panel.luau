@@ -41,7 +41,7 @@ function Panel.new(props: UIPanelProps?): UIPanel
 end
 
 function Panel.draw(self: UIPanel)
-  self = self :: UIPanel -- ??? this fixes an error??
+  self = self :: UIPanel
 
   const size = self:get_absolute_size()
   const pos = self:get_absolute_position()
@@ -64,7 +64,7 @@ function Panel.draw(self: UIPanel)
   elseif self.texture then
     local draw_pos = self:get_top_left_position()
     if self.rot ~= 0 then
-      const rad = math.rad(self.rot)
+     const rad = math.rad(self.rot)
       const cos, sin = math.cos(rad), math.sin(rad)
 
       draw_pos = vector.create(

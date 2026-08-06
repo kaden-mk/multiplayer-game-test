@@ -8,7 +8,7 @@ local pos = engine.input.get_mouse_position()
 
 const cursor = Panel {
   pos = UDim2(0, pos.x, 0, pos.y),
-  texture = engine.assets.load_texture("assets/cursor.png"),
+  texture = engine.assets.load_texture("images/cursor.png"),
   zindex = 400
 }
 

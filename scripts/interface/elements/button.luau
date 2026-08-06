@@ -60,4 +60,11 @@ function Button.update(self: UIButton, dt: number)
     Element.update(self, dt)
 end
 
+function Button.destroy(self: UIButton)
+    self.on_click:destroy()
+    self.on_hover:destroy()
+
+    Element.destroy(self)
+end
+
 return Button

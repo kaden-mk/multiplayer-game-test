@@ -2,7 +2,8 @@
   "languageMode": "strict",
   "aliases": {
     "interface": "./scripts/interface",
-    "lib": "./scripts/lib"
+    "lib": "./scripts/lib",
+    "scenes": "./scripts/scenes"
   },
   
 }
